@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mohdareeb0x-commits/book-library-api/models"
@@ -34,5 +35,21 @@ func ListBooks(db *gorm.DB) gin.HandlerFunc {
 		db.Find(&book)
 
 		OK(c, book)
+	}
+}
+
+func ListBooksByID(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.DefaultQuery("id", "0"))
+		if err != nil {
+			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process ID")
+		}
+
+		book := models.Books{}
+
+		db.Where("id = ?", id).Find(&book)
+
+		OK(c, book)
+
 	}
 }

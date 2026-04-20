@@ -10,6 +10,5 @@ func CreateDB() (*gorm.DB) {
 	if err != nil {
 		panic("Unable to create DB")
 	}
-
 	return db
 }

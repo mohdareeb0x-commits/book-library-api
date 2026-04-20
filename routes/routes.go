@@ -14,8 +14,8 @@ func Routes() {
 	db.AutoMigrate(&models.Books{})
 
 	router.GET("/books", handler.ListBooks(db))
+	router.GET("/books/:id", handler.ListBooks(db))
 	router.POST("/books", handler.CreateBook(db))
 
 	router.Run()
-
 }
