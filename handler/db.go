@@ -30,15 +30,17 @@ func CreateBook(db *gorm.DB) gin.HandlerFunc {
 
 func ListBooks(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		book := []models.Books{}
+		books  := []models.Books{}
 
-		db.Find(&book)
-
-		if book[0].ID == 0 {
-			Fail(c, http.StatusNoContent, "NO_BOOKS_AVAILABLE", "database is empty")
+		if len(books) == 0 {
+			Fail(c, http.StatusOK, "NO_BOOKS_AVAILABLE", "database is empty")
+			return 
 		}
 
-		OK(c, book)
+		db.Find(&books)
+
+
+		OK(c, books)
 	}
 }
 
@@ -47,6 +49,7 @@ func ListBooksByID(db *gorm.DB) gin.HandlerFunc {
 		id, err := strconv.Atoi(c.DefaultQuery("id", "1"))
 		if err != nil {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process ID")
+			return 
 		}
 
 		book := models.Books{}
