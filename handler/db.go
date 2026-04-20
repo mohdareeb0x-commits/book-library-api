@@ -40,7 +40,7 @@ func ListBooks(db *gorm.DB) gin.HandlerFunc {
 
 func ListBooksByID(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.DefaultQuery("id", "0"))
+		id, err := strconv.Atoi(c.DefaultQuery("id", "1"))
 		if err != nil {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process ID")
 		}

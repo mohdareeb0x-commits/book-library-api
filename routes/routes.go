@@ -3,8 +3,8 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mohdareeb0x-commits/book-library-api/handler"
-	"github.com/mohdareeb0x-commits/book-library-api/store"
 	"github.com/mohdareeb0x-commits/book-library-api/models"
+	"github.com/mohdareeb0x-commits/book-library-api/store"
 )
 
 func Routes() {

@@ -10,13 +10,13 @@ import (
 func OK(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, models.Response{
 		Success: true,
-		Data: data,
+		Data:    data,
 	})
 }
 
 func Fail(c *gin.Context, status int, code, message string) {
-  c.JSON(status, models.Response{
-    Success: false,
-    Error:   &models.ErrorInfo{Code: code, Message: message},
-  })
+	c.JSON(status, models.Response{
+		Success: false,
+		Error:   &models.ErrorInfo{Code: code, Message: message},
+	})
 }
