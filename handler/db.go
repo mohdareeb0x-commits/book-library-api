@@ -16,14 +16,14 @@ func CreateBook(db *gorm.DB) gin.HandlerFunc {
 		authorName := c.Query("author_name")
 		published := c.Query("published")
 
-		book := models.Books{Name: bookName, Author: authorName, DatePublished: published}
-
-		db.Create(&book)
-
 		if bookName == "" || authorName == "" || published == "" {
 			Fail(c, http.StatusBadRequest, "REQUIRED_QUERY_EMPTY", "book name, author name or publish date is missing")
 			return
 		}
+
+		book := models.Books{Name: bookName, Author: authorName, DatePublished: published}
+		db.Create(&book)
+
 		OK(c, book)
 	}
 }
@@ -33,6 +33,10 @@ func ListBooks(db *gorm.DB) gin.HandlerFunc {
 		book := []models.Books{}
 
 		db.Find(&book)
+
+		if book[0].ID == 0 {
+			Fail(c, http.StatusNoContent, "NO_BOOKS_AVAILABLE", "database is empty")
+		}
 
 		OK(c, book)
 	}
