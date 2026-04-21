@@ -5,6 +5,8 @@ type Books struct {
 	Name          string `json:"book"`
 	Author        string `json:"author"`
 	DatePublished string `json:"date_published"`
+	Units         int    `json:"units"`
+	Price         int    `json:"price"`
 }
 
 type Response struct {

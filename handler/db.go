@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -13,16 +14,25 @@ import (
 func CreateBook(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		bookName := c.Query("book_name")
-		authorName := c.Query("author_name")
+		bookName := c.Query("book")
+		authorName := c.Query("author")
 		published := c.Query("published")
+		units, err := strconv.Atoi(c.DefaultQuery("units", "1"))
+		if err != nil {
+			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Units")
+		}
+		price, err := strconv.Atoi(c.DefaultQuery("price", "0"))
+		log.Println(price)
+		if err != nil {
+			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Prices")
+		}
 
 		if bookName == "" || authorName == "" || published == "" {
 			Fail(c, http.StatusBadRequest, "REQUIRED_QUERY_EMPTY", "book name, author name or publish date is missing")
 			return
 		}
 
-		book := models.Books{Name: bookName, Author: authorName, DatePublished: published}
+		book := models.Books{Name: bookName, Author: authorName, DatePublished: published, Units: units, Price: price}
 		db.Create(&book)
 
 		OK(c, book)
@@ -39,7 +49,6 @@ func ListBooks(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-
 		OK(c, books)
 	}
 }
@@ -47,7 +56,7 @@ func ListBooks(db *gorm.DB) gin.HandlerFunc {
 func ListBooksByID(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
-		
+
 		if err != nil || id == 0 {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process ID")
 			return
@@ -74,11 +83,13 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process ID")
 		}
 
-		bookName := c.Query("book_name")
-		authorName := c.Query("author_name")
+		bookName := c.Query("book")
+		authorName := c.Query("author")
 		published := c.Query("published")
+		units := c.Query("units")
+		price := c.Query("price")
 
-		if bookName == "" && authorName == "" && published == "" {
+		if bookName == "" && authorName == "" && published == "" && units == "" && price == "" {
 			Fail(c, http.StatusBadRequest, "REQUIRED_QUERY_EMPTY", "book name, author name or publish date is missing")
 			return
 		}
@@ -101,6 +112,21 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 		if published != "" {
 			db.Model(&book).Where("id = ?", id).Update("date_published", published)
 		}
+		if units != "" {
+			units, err := strconv.Atoi(units)
+			if err != nil {
+				Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Units")
+			}
+			db.Model(&book).Where("id = ?", id).Update("units", units)
+		}
+		if price != "" {
+			price, err := strconv.Atoi(price)
+			if err != nil {
+				Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Prices")
+			}
+			db.Model(&book).Where("id = ?", id).Update("price", price)
+		}
+		
 
 		OK(c, book)
 
