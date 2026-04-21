@@ -13,7 +13,7 @@ func Routes(db *gorm.DB) {
 	router.GET("/books/:id", handler.ListBooksByID(db))
 	router.POST("/books", handler.CreateBook(db))
 	router.PUT("/books/:id", handler.UpdateBookByID(db))
-	router.DELETE("books/:id", handler.DeleteBookByID(db))
+	router.DELETE("/books/:id", handler.DeleteBookByID(db))
 
 	router.Run()
 }

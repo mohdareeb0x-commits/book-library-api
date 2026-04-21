@@ -29,11 +29,13 @@ func CreateBook(db *gorm.DB) gin.HandlerFunc {
 		units, err := strconv.Atoi(c.DefaultQuery("units", "1"))
 		if err != nil {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Units")
+			return
 		}
 		price, err := strconv.Atoi(c.DefaultQuery("price", "0"))
 		log.Println(price)
 		if err != nil {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Prices")
+			return
 		}
 
 		if bookName == "" || authorName == "" || published == "" {
@@ -73,7 +75,7 @@ func ListBooksByID(db *gorm.DB) gin.HandlerFunc {
 
 		book := models.Books{}
 
-		db.Where("id = ?", id).Find(&book)
+		db.First(&book, id)
 
 		if book.ID == 0 {
 			Fail(c, http.StatusNotFound, "NO_BOOK_AVAILABLE", fmt.Sprintf("no book available with id: %d", id))
@@ -90,6 +92,7 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil || id == 0 {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process ID")
+			return
 		}
 
 		bookName := c.Query("book")
@@ -105,7 +108,7 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 
 		book := models.Books{}
 
-		db.Where("id = ?", id).Find(&book)
+		db.First(&book, id)
 
 		if book.ID == 0 {
 			Fail(c, http.StatusNotFound, "NO_BOOK_AVAILABLE", fmt.Sprintf("no book available with id: %d", id))
@@ -125,6 +128,7 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 			units, err := strconv.Atoi(units)
 			if err != nil {
 				Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Units")
+				return
 			}
 			db.Model(&book).Where("id = ?", id).Update("units", units)
 		}
@@ -132,6 +136,7 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 			price, err := strconv.Atoi(price)
 			if err != nil {
 				Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Prices")
+				return
 			}
 			db.Model(&book).Where("id = ?", id).Update("price", price)
 		}
@@ -146,10 +151,11 @@ func DeleteBookByID(db *gorm.DB) gin.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil || id == 0 {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process ID")
+			return
 		}
 
 		book := models.Books{}
-		db.Where("id = ?", id).Find(&book)
+		db.First(&book, id)
 
 		if book.ID == 0 {
 			Fail(c, http.StatusNotFound, "NO_BOOK_AVAILABLE", fmt.Sprintf("no book available with id: %d", id))
