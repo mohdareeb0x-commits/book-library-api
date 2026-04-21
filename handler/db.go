@@ -8,8 +8,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mohdareeb0x-commits/book-library-api/models"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
+func CreateDB() *gorm.DB {
+	db, err := gorm.Open((sqlite.Open("library.db")))
+	if err != nil {
+		panic("Unable to create DB")
+	}
+	return db
+}
 
 func CreateBook(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -126,7 +135,6 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 			}
 			db.Model(&book).Where("id = ?", id).Update("price", price)
 		}
-		
 
 		OK(c, book)
 
