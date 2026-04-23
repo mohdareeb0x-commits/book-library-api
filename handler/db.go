@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"log"
+	// "log"
 	"net/http"
 	"strconv"
 
@@ -22,40 +22,26 @@ func CreateDB() *gorm.DB {
 
 func CreateBook(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
-		bookName := c.Query("book")
-		authorName := c.Query("author")
-		published := c.Query("published")
-		units, err := strconv.Atoi(c.DefaultQuery("units", "1"))
-		if err != nil {
-			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Units")
-			return
+		form := models.Books{
+			Units: 0,
+			Price: 0,
 		}
-		price, err := strconv.Atoi(c.DefaultQuery("price", "0"))
-		log.Println(price)
-		if err != nil {
-			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Prices")
+
+		if err := c.ShouldBind(&form); err != nil {
+			Fail(c, http.StatusBadRequest, "FORM_BINDING_ERROR", "unable to get form")
 			return
 		}
 
-		if bookName == "" || authorName == "" || published == "" {
-			Fail(c, http.StatusBadRequest, "REQUIRED_QUERY_EMPTY", "book name, author name or publish date is missing")
-			return
-		}
+		db.Create(&form)
 
-		book := models.Books{Name: bookName, Author: authorName, DatePublished: published, Units: units, Price: price}
-		db.Create(&book)
-
-		OK(c, book)
+		OK(c, form)
 	}
 }
 
 func ListBooks(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		books := []models.Books{}
-		db.Find(&books)
-
-		if len(books) == 0 {
+		if err := db.Find(&books).Error; err != nil {
 			Fail(c, http.StatusOK, "NO_BOOKS_AVAILABLE", "database is empty")
 			return
 		}
@@ -67,7 +53,6 @@ func ListBooks(db *gorm.DB) gin.HandlerFunc {
 func ListBooksByID(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
-
 		if err != nil || id == 0 {
 			Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process ID")
 			return
@@ -75,9 +60,7 @@ func ListBooksByID(db *gorm.DB) gin.HandlerFunc {
 
 		book := models.Books{}
 
-		db.First(&book, id)
-
-		if book.ID == 0 {
+		if err := db.Where("id = ?", id).First(&book, id).Error; err != nil {
 			Fail(c, http.StatusNotFound, "NO_BOOK_AVAILABLE", fmt.Sprintf("no book available with id: %d", id))
 			return
 		}
@@ -95,50 +78,21 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		bookName := c.Query("book")
-		authorName := c.Query("author")
-		published := c.Query("published")
-		units := c.Query("units")
-		price := c.Query("price")
-
-		if bookName == "" && authorName == "" && published == "" && units == "" && price == "" {
-			Fail(c, http.StatusBadRequest, "REQUIRED_QUERY_EMPTY", "book name, author name or publish date is missing")
-			return
-		}
-
 		book := models.Books{}
 
-		db.First(&book, id)
-
-		if book.ID == 0 {
-			Fail(c, http.StatusNotFound, "NO_BOOK_AVAILABLE", fmt.Sprintf("no book available with id: %d", id))
+		if err := db.Where("id = ?", id).First(&book).Error; err != nil {
+			Fail(c, http.StatusNotFound, "NOT_FOUND", fmt.Sprintf("no book available with id: %d", id))
 			return
 		}
 
-		if bookName != "" {
-			db.Model(&book).Where("id = ?", id).Update("name", bookName)
+		if err := c.ShouldBind(&book); err != nil {
+			Fail(c, http.StatusBadRequest, "FORM_BINDING_ERROR", "unable to get form")
+			return
 		}
-		if authorName != "" {
-			db.Model(&book).Where("id = ?", id).Update("author", authorName)
-		}
-		if published != "" {
-			db.Model(&book).Where("id = ?", id).Update("date_published", published)
-		}
-		if units != "" {
-			units, err := strconv.Atoi(units)
-			if err != nil {
-				Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Units")
-				return
-			}
-			db.Model(&book).Where("id = ?", id).Update("units", units)
-		}
-		if price != "" {
-			price, err := strconv.Atoi(price)
-			if err != nil {
-				Fail(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "unable to process Book Prices")
-				return
-			}
-			db.Model(&book).Where("id = ?", id).Update("price", price)
+
+		if err := db.Save(&book).Error; err != nil {
+			Fail(c, http.StatusInternalServerError, "DB_ERROR", "unable to update book")
+			return
 		}
 
 		OK(c, book)
@@ -155,14 +109,15 @@ func DeleteBookByID(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		book := models.Books{}
-		db.First(&book, id)
-
-		if book.ID == 0 {
+		if err := db.Where("id = ?", id).First(&book).Error; err != nil {
 			Fail(c, http.StatusNotFound, "NO_BOOK_AVAILABLE", fmt.Sprintf("no book available with id: %d", id))
 			return
 		}
 
-		db.Where("id = ?", id).Delete(&book)
+		if err := db.Where("id = ?", id).Delete(&book).Error; err != nil {
+			Fail(c, http.StatusInternalServerError, "DB_ERROR", "unable to delete book")
+			return
+		}
 
 		OK(c, book)
 	}
