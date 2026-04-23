@@ -145,12 +145,24 @@ POST /books
 ```
 Add a new book to the library.
 
-**Request Body (Form Data):**
-- `book` (string, required) - Book name
+**Request Body (JSON):**
+```json
+{
+  "id": 1,
+  "name": "The Go Programming Language",
+  "author": "Alan Donovan and Brian Kernighan",
+  "date_published": "2015-10-26",
+  "units": 5,
+  "price": 45
+}
+```
+
+**Field Requirements:**
+- `name` (string, required) - Book name
 - `author` (string, required) - Author name
 - `date_published` (string, required) - Publication date
-- `units` (integer, default = 0) - Number of units available
-- `price` (integer, default = 0) - Book price
+- `units` (integer, optional) - Number of units available (default: 0)
+- `price` (integer, optional) - Book price (default: 0)
 
 **Response:**
 ```json
@@ -177,12 +189,23 @@ Update an existing book's details.
 **Parameters:**
 - `id` (integer, required) - Book ID
 
-**Request Body (Form Data):**
-- `book` (string) - Book name
-- `author` (string) - Author name
-- `date_published` (string) - Publication date
-- `units` (integer) - Number of units available
-- `price` (integer) - Book price
+**Request Body (JSON):**
+```json
+{
+  "name": "The Go Programming Language",
+  "author": "Alan Donovan and Brian Kernighan",
+  "date_published": "2015-10-26",
+  "units": 10,
+  "price": 50
+}
+```
+
+**Field Requirements:**
+- `name` (string, optional) - Book name
+- `author` (string, optional) - Author name
+- `date_published` (string, optional) - Publication date
+- `units` (integer, optional) - Number of units available
+- `price` (integer, optional) - Book price
 
 **Response:**
 ```json
@@ -275,7 +298,7 @@ type Meta struct {
 
 The API returns consistent error responses with appropriate HTTP status codes:
 
-- **400 Bad Request** - Form binding error
+- **400 Bad Request** - JSON binding error
 - **404 Not Found** - Book not found by ID
 - **500 Internal Server Error** - Database or processing errors
 

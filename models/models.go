@@ -1,12 +1,12 @@
 package models
 
 type Books struct {
-	ID            int    `form:"id"`
-	Name          string `form:"book" binding:"required"`
-	Author        string `form:"author" binding:"required"`
-	DatePublished string `form:"date_published" binding:"required"`
-	Units         int    `form:"units" binding:"required"`
-	Price         int    `form:"price" binding:"required"`
+	ID            int    `json:"id"`
+	Name          string `json:"book" binding:"required"`
+	Author        string `json:"author" binding:"required"`
+	DatePublished string `json:"date_published" binding:"required"`
+	Units         int    `json:"units" binding:"required"`
+	Price         int    `json:"price" binding:"required"`
 }
 
 type Response struct {

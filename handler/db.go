@@ -21,19 +21,19 @@ func CreateDB() *gorm.DB {
 
 func CreateBook(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		form := models.Books{
+		book := models.Books{
 			Units: 0,
 			Price: 0,
 		}
 
-		if err := c.ShouldBind(&form); err != nil {
-			Fail(c, http.StatusBadRequest, "FORM_BINDING_ERROR", "unable to get form")
+		if err := c.ShouldBindJSON(&book); err != nil {
+			Fail(c, http.StatusBadRequest, "JSON_BINDING_ERROR", "unable to get request body")
 			return
 		}
 
-		db.Create(&form)
+		db.Create(&book)
 
-		OK(c, form, nil)
+		OK(c, book, nil)
 	}
 }
 
@@ -105,8 +105,8 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := c.ShouldBind(&book); err != nil {
-			Fail(c, http.StatusBadRequest, "FORM_BINDING_ERROR", "unable to get form")
+		if err := c.ShouldBindJSON(&book); err != nil {
+			Fail(c, http.StatusBadRequest, "JSON_BINDING_ERROR", "unable to get book details")
 			return
 		}
 
@@ -134,7 +134,7 @@ func DeleteBookByID(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := db.Where("id = ?", id).Delete(&book).Error; err != nil {
+		if err := db.Delete(&book).Error; err != nil {
 			Fail(c, http.StatusInternalServerError, "DB_ERROR", "unable to delete book")
 			return
 		}
