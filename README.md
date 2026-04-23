@@ -4,12 +4,13 @@ A simple and efficient REST API for managing a book library, built with Go, Gin 
 
 ## Features
 
--  **Create Books** - Add new books to the library
--  **Read Books** - Retrieve all books or search by ID
--  **Update Books** - Modify book details
--  **Delete Books** - Remove books from the library
--  **SQLite Database** - Lightweight, file-based database
--  **Structured Responses** - Consistent JSON response format
+- **Create Books** - Add new books to the library
+- **Read Books** - Retrieve all books or search by ID
+- **Update Books** - Modify book details (PUT/PATCH)
+- **Delete Books** - Remove books from the library
+- **SQLite Database** - Lightweight, file-based database
+- **Structured Responses** - Consistent JSON response format with error handling
+- **Form Binding** - Automatic form data binding and validation
 
 ## Tech Stack
 
@@ -23,16 +24,16 @@ A simple and efficient REST API for managing a book library, built with Go, Gin 
 ```
 book_library_API/
 ├── cmd/
-│   └── main.go           # Application entry point
+│   └── main.go              # Application entry point
 ├── handler/
-│   ├── db.go             # Database operations and API handlers
-│   └── response.go        # Response helper functions
+│   ├── db.go                # Database operations and API handlers
+│   └── response.go          # Response helper functions
 ├── models/
-│   └── models.go         # Data models for Books and Response
+│   └── models.go            # Data models for Books and Response
 ├── routes/
-│   └── routes.go         # API route definitions
-├── go.mod               # Go module dependencies
-└── README.md            # This file
+│   └── routes.go            # API route definitions
+├── go.mod                   # Go module dependencies
+└── README.md                # This file
 ```
 
 ## Installation
@@ -60,15 +61,15 @@ go mod download
 go run cmd/main.go
 ```
 
-The API will start on `http://localhost:8080`
+The API server will start on `http://localhost:8080`
 
 ## API Endpoints
 
-### 1. List All Books
+### Get All Books
 ```
 GET /books
 ```
-Returns all books in the library.
+Returns a list of all books in the library.
 
 **Response:**
 ```json
@@ -77,8 +78,8 @@ Returns all books in the library.
   "data": [
     {
       "id": 1,
-      "book": "The Go Programming Language",
-      "author": "Alan Donovan",
+      "name": "The Go Programming Language",
+      "author": "Alan Donovan and Brian Kernighan",
       "date_published": "2015-10-26",
       "units": 5,
       "price": 45
@@ -87,14 +88,14 @@ Returns all books in the library.
 }
 ```
 
-### 2. Get Book by ID
+### Get Book by ID
 ```
 GET /books/:id
 ```
-Retrieves a specific book by its ID.
+Retrieve a specific book by its ID.
 
 **Parameters:**
-- `id` (URL parameter) - The book ID
+- `id` (integer, required) - Book ID
 
 **Response:**
 ```json
@@ -102,8 +103,8 @@ Retrieves a specific book by its ID.
   "success": true,
   "data": {
     "id": 1,
-    "book": "The Go Programming Language",
-    "author": "Alan Donovan",
+    "name": "The Go Programming Language",
+    "author": "Alan Donovan and Brian Kernighan",
     "date_published": "2015-10-26",
     "units": 5,
     "price": 45
@@ -111,81 +112,74 @@ Retrieves a specific book by its ID.
 }
 ```
 
-### 3. Create a New Book
+### Create Book
 ```
-POST /books?book=<name>&author=<author>&published=<date>&units=<units>&price=<price>
+POST /books
 ```
-Adds a new book to the library.
+Add a new book to the library.
 
-**Query Parameters:**
-- `book` (required) - Book title
-- `author` (required) - Author name
-- `published` (required) - Publication date (YYYY-MM-DD format)
-- `units` (optional, default: 1) - Number of units available
-- `price` (optional, default: 0) - Book price
-
-**Example:**
-```bash
-curl "http://localhost:8080/books?book=Golang&author=John&published=2020-01-01&units=10&price=50"
-```
+**Request Body (Form Data):**
+- `book` (string, required) - Book name
+- `author` (string, required) - Author name
+- `date_published` (string, required) - Publication date
+- `units` (integer, default = 0) - Number of units available
+- `price` (integer, default = 0) - Book price
 
 **Response:**
 ```json
 {
   "success": true,
   "data": {
-    "id": 2,
-    "book": "Golang",
-    "author": "John",
-    "date_published": "2020-01-01",
+    "id": 1,
+    "name": "The Go Programming Language",
+    "author": "Alan Donovan and Brian Kernighan",
+    "date_published": "2015-10-26",
+    "units": 5,
+    "price": 45
+  }
+}
+```
+
+### Update Book
+```
+PUT /books/:id
+PATCH /books/:id
+```
+Update an existing book's details.
+
+**Parameters:**
+- `id` (integer, required) - Book ID
+
+**Request Body (Form Data):**
+- `book` (string) - Book name
+- `author` (string) - Author name
+- `date_published` (string) - Publication date
+- `units` (integer) - Number of units available
+- `price` (integer) - Book price
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "The Go Programming Language",
+    "author": "Alan Donovan and Brian Kernighan",
+    "date_published": "2015-10-26",
     "units": 10,
     "price": 50
   }
 }
 ```
 
-### 4. Update a Book
-```
-PUT /books/:id?book=<name>&author=<author>&...
-```
-Updates one or more fields of an existing book.
-
-**Parameters:**
-- `id` (URL parameter) - The book ID
-- `book` (optional) - New book title
-- `author` (optional) - New author name
-- `published` (optional) - New publication date
-- `units` (optional) - New number of units
-- `price` (optional) - New price
-
-**Example:**
-```bash
-curl -X PUT "http://localhost:8080/books/1?author=Alan%20A.%20Donovan&price=50"
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "book": "The Go Programming Language",
-    "author": "Alan A. Donovan",
-    "date_published": "2015-10-26",
-    "units": 5,
-    "price": 50
-  }
-}
-```
-
-### 5. Delete a Book
+### Delete Book
 ```
 DELETE /books/:id
 ```
-Removes a book from the library.
+Remove a book from the library.
 
 **Parameters:**
-- `id` (URL parameter) - The book ID
+- `id` (integer, required) - Book ID
 
 **Response:**
 ```json
@@ -193,8 +187,8 @@ Removes a book from the library.
   "success": true,
   "data": {
     "id": 1,
-    "book": "The Go Programming Language",
-    "author": "Alan Donovan",
+    "name": "The Go Programming Language",
+    "author": "Alan Donovan and Brian Kernighan",
     "date_published": "2015-10-26",
     "units": 5,
     "price": 45
@@ -202,73 +196,57 @@ Removes a book from the library.
 }
 ```
 
-## Response Format
+## Data Models
 
-All API responses follow a consistent structure:
-
-**Success Response:**
-```json
-{
-  "success": true,
-  "data": { /* response data */ }
+### Books
+```go
+type Books struct {
+	ID            int    `form:"id"`
+	Name          string `form:"book" binding:"required"`
+	Author        string `form:"author" binding:"required"`
+	DatePublished string `form:"date_published" binding:"required"`
+	Units         int    `form:"units" binding:"required"`
+	Price         int    `form:"price" binding:"required"`
 }
 ```
 
-**Error Response:**
+### Response
+```go
+type Response struct {
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   *ErrorInfo  `json:"error,omitempty"`
+}
+
+type ErrorInfo struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+```
+
+## Error Handling
+
+The API returns consistent error responses with appropriate HTTP status codes:
+
+- **400 Bad Request** - Form binding error
+- **404 Not Found** - Book not found by ID
+- **500 Internal Server Error** - Database or processing errors
+
+Example error response:
 ```json
 {
   "success": false,
   "error": {
-    "code": "ERROR_CODE",
-    "message": "Error description"
+    "code": "NO_BOOK_AVAILABLE",
+    "message": "no book available with id: 999"
   }
 }
 ```
 
 ## Database
 
-The application uses SQLite with the database file stored as `library.db` in the root directory. The database schema is automatically created on first run using GORM's `AutoMigrate`.
+The application uses SQLite with automatic schema migration. On first run, the `library.db` file will be created with the Books table.
 
-### Book Model
-
-| Field         | Type   | Description                  |
-|---------------|--------|------------------------------|
-| ID            | int    | Primary key (auto-generated) |
-| Name          | string | Book title                   |
-| Author        | string | Author name                  |
-| DatePublished | string | Publication date             |
-| Units         | int    | Number of copies available   |
-| Price         | int    | Book price                   |
-
-## Error Codes
-
-| Code                  | HTTP Status | Description                           |
-|-----------------------|-------------|---------------------------------------|
-| REQUIRED_QUERY_EMPTY  | 400         | Required query parameters are missing |
-| NO_BOOK_AVAILABLE     | 404         | Book with the specified ID not found  |
-| NO_BOOKS_AVAILABLE    | 200         | Database is empty                     |
-| INTERNAL_SERVER_ERROR | 500         | Server error (invalid parameters)     |
-
-## Example Usage
-
-### Using curl
-
-```bash
-# Get all books
-curl http://localhost:8080/books
-
-# Create a new book
-curl "http://localhost:8080/books?book=Clean%20Code&author=Robert%20C.%20Martin&published=2008-08-01&units=3&price=40"
-
-# Get a specific book
-curl http://localhost:8080/books/1
-
-# Update a book
-curl -X PUT "http://localhost:8080/books/1?price=35"
-
-# Delete a book
-curl -X DELETE http://localhost:8080/books/1
-```
 
 ## Author
 
