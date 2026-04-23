@@ -69,7 +69,26 @@ The API server will start on `http://localhost:8080`
 ```
 GET /books
 ```
-Returns a list of all books in the library.
+Returns a paginated list of all books in the library.
+
+**Query Parameters:**
+- `page` (integer, optional) - Page number (default: 1)
+- `limit` (integer, optional) - Number of books per page (default: 10)
+
+**Example Requests:**
+```bash
+# Get first page with default limit of 10
+GET /books
+
+# Get second page with 10 books per page
+GET /books?page=2
+
+# Get first page with 20 books per page
+GET /books?limit=20
+
+# Get third page with 5 books per page
+GET /books?page=3&limit=5
+```
 
 **Response:**
 ```json
@@ -83,6 +102,14 @@ Returns a list of all books in the library.
       "date_published": "2015-10-26",
       "units": 5,
       "price": 45
+    },
+    {
+      "id": 2,
+      "name": "Clean Code",
+      "author": "Robert C. Martin",
+      "date_published": "2008-08-01",
+      "units": 3,
+      "price": 40
     }
   ]
 }
@@ -216,12 +243,32 @@ type Response struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   *ErrorInfo  `json:"error,omitempty"`
+	Meta    Meta        `json:"meta,omitempty"`
 }
 
 type ErrorInfo struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
+
+type Meta struct {
+	Page   int `json:"page,omitempty"`
+	Limit  int `json:"limit,omitempty"`
+	Offset int `json:"offset,omitempty"`
+}
+```
+
+**Response Structure:**
+- `success` (boolean) - Indicates whether the request was successful
+- `data` (object/array) - The response data (books or single book)
+- `error` (object) - Error details (only present on failure)
+  - `code` (string) - Error code identifier
+  - `message` (string) - Human-readable error message
+- `meta` (object) - Pagination metadata (only present for list endpoints)
+  - `page` (integer) - Current page number
+  - `limit` (integer) - Number of items per page
+  - `offset` (integer) - Offset in the total result set
+
 ```
 
 ## Error Handling

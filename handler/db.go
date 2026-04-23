@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	// "log"
 	"net/http"
 	"strconv"
 
@@ -34,19 +33,40 @@ func CreateBook(db *gorm.DB) gin.HandlerFunc {
 
 		db.Create(&form)
 
-		OK(c, form)
+		OK(c, form, nil)
 	}
 }
 
 func ListBooks(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+		if err != nil {
+			Fail(c, http.StatusInternalServerError, "PAGINATION_ERROR", "unable to process page")
+			return
+		}
+
+		limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+		if err != nil {
+			Fail(c, http.StatusInternalServerError, "PAGINATION_ERROR", "unable to process limit")
+			return
+		}
+		
+		offset := (page - 1) * limit
+
 		books := []models.Books{}
-		if err := db.Find(&books).Error; err != nil {
+		if err := db.Limit(limit).Offset(offset).Find(&books).Error; err != nil {
 			Fail(c, http.StatusOK, "NO_BOOKS_AVAILABLE", "database is empty")
 			return
 		}
 
-		OK(c, books)
+		meta := models.Meta{
+			Page: page,
+			Limit: limit,
+			Offset: offset,
+		}
+
+		OK(c, books, &meta)
 	}
 }
 
@@ -65,7 +85,7 @@ func ListBooksByID(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		OK(c, book)
+		OK(c, book, nil)
 
 	}
 }
@@ -95,7 +115,7 @@ func UpdateBookByID(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		OK(c, book)
+		OK(c, book, nil)
 
 	}
 }
@@ -119,6 +139,6 @@ func DeleteBookByID(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		OK(c, book)
+		OK(c, book, nil)
 	}
 }
