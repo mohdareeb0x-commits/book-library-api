@@ -14,7 +14,6 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	handler := handler.NewBookHandler(service)
 
 	books := r.Group("/books")
-	books.Use(gin.Logger(), gin.Recovery())
 	{
 		books.GET("/", handler.ListBooks)
 		books.GET("/:id", handler.ListBooksByID)
