@@ -1,4 +1,4 @@
-# Book Library API v3
+# Book Library API
 
 A production-ready REST API for managing a book library, built with Go, Gin framework, and SQLite database. Features a clean architecture with service, repository, and handler layers.
 
