@@ -24,7 +24,7 @@ func (r *BookRepository) Create(book *models.Book) (*models.Book, error) {
 	return book, nil
 }
 
-func (r *BookRepository) List(limit, offset int) (*[]models.Book, error){
+func (r *BookRepository) List(limit, offset int) (*[]models.Book, error) {
 	var books *[]models.Book
 	if err := r.db.Limit(limit).Offset(offset).Find(&books).Error; err != nil {
 		log.Println(err)
@@ -50,4 +50,28 @@ func (r *BookRepository) UpdateByID(book *models.Book, updates map[string]interf
 
 func (r *BookRepository) DeleteByID(book *models.Book) error {
 	return r.db.Delete(&book).Error
+}
+
+func (r *BookRepository) SearchByAuthor(author string) (*[]models.Book, error) {
+	var book *[]models.Book
+	if err := r.db.Where("author = ?", author).Find(&book).Error; err != nil {
+		return nil, err
+	}
+	return book, nil
+}
+
+func (r *BookRepository) SearchByName(name string) (*[]models.Book, error) {
+	var book *[]models.Book
+	if err := r.db.Where("name = ?", name).Find(&book).Error; err != nil {
+		return nil, err
+	}
+	return book, nil
+}
+
+func (r *BookRepository) Search(name, author string, limit, offset int) (*[]models.Book, error) {
+	var book *[]models.Book
+	if err := r.db.Limit(limit).Offset(offset).Where("name = ? AND author = ?", name, author).Find(&book).Error; err != nil {
+		return nil, err
+	}
+	return book, nil
 }

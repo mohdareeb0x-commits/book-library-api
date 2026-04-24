@@ -17,6 +17,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	{
 		books.GET("/", handler.ListBooks)
 		books.GET("/:id", handler.ListBooksByID)
+		books.GET("/search", handler.SearchBook)
 		books.POST("/", handler.CreateBook)
 		books.PATCH("/:id", handler.UpdateBookByID)
 		books.DELETE("/:id", handler.DeleteBookByID)

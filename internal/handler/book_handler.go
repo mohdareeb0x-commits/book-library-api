@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/dto"
-	"github.com/mohdareeb0x-commits/book-library-api/internal/service"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/response"
+	"github.com/mohdareeb0x-commits/book-library-api/internal/service"
 )
 
 type BookHandler struct {
@@ -88,4 +88,19 @@ func (h *BookHandler) DeleteBookByID(c *gin.Context) {
 	}
 
 	response.OK(c, book, nil)
+}
+
+func (h *BookHandler) SearchBook(c *gin.Context) {
+	name := c.Query("name")
+	author := c.Query("author")
+	limit := c.DefaultQuery("limit", "10")
+	page := c.DefaultQuery("page", "1")
+
+	books, meta, err := h.service.SearchBook(name, author, limit, page)
+	if err != nil {
+		response.Fail(c, http.StatusNotFound, "NOT_FOUND", "unable to find book")
+		return
+	}
+
+	response.OK(c, books, meta)
 }
