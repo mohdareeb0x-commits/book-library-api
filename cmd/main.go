@@ -22,7 +22,7 @@ func main() {
 
 	db := config.InitDB()
 
-	if err := db.AutoMigrate(&models.Book{}); err != nil {
+	if err := db.AutoMigrate(&models.Book{}, &models.User{}); err != nil {
 		log.Fatal("Migration failed:", err)
 	}
 

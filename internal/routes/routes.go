@@ -9,17 +9,27 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, db *gorm.DB) {
-	repo := repository.NewBookRepository(db)
-	service := service.NewBookService(repo)
-	handler := handler.NewBookHandler(service)
+
+	bookRepo := repository.NewBookRepository(db)
+	bookService := service.NewBookService(bookRepo)
+	bookHandler := handler.NewBookHandler(bookService)
+
+	userRepo := repository.NewUserRepository(db)
+	authService := service.NewAuthService(userRepo)
+	authHandler := handler.NewAuthHandler(authService)
 
 	books := r.Group("/books")
 	{
-		books.GET("/", handler.ListBooks)
-		books.GET("/:id", handler.ListBooksByID)
-		books.GET("/search", handler.SearchBook)
-		books.POST("/", handler.CreateBook)
-		books.PATCH("/:id", handler.UpdateBookByID)
-		books.DELETE("/:id", handler.DeleteBookByID)
+		books.GET("/", bookHandler.ListBooks)
+		books.GET("/:id", bookHandler.ListBooksByID)
+		books.GET("/search", bookHandler.SearchBook)
+		books.POST("/", bookHandler.CreateBook)
+		books.PATCH("/:id", bookHandler.UpdateBookByID)
+		books.DELETE("/:id", bookHandler.DeleteBookByID)
+	}
+
+	users := r.Group("/user")
+	{
+		users.POST("/register", authHandler.CreateUser)
 	}
 }

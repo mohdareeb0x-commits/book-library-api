@@ -17,6 +17,13 @@ func NewBookRepository(db *gorm.DB) *BookRepository {
 	return &BookRepository{db: db}
 }
 
+func (r *BookRepository) CreateUser(user *models.User) (*models.User, error) {
+	if err := r.db.Create(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (r *BookRepository) Create(book *models.Book) (*models.Book, error) {
 	if err := r.db.Create(book).Error; err != nil {
 		return nil, err
