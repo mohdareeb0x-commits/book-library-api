@@ -57,3 +57,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	response.OK(c, userResponse, nil)
 }
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	c.SetCookie("access_token", "", -1, "/", "", false, true)
+	response.OK(c, nil, nil)
+}

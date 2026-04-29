@@ -40,5 +40,6 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	{
 		users.POST("/register", authHandler.CreateUser)
 		users.POST("/login", authHandler.Login)
+		users.POST("/logout", authHandler.Logout)
 	}
 }
