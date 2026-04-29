@@ -8,7 +8,7 @@ type Book struct {
     Author        string    `gorm:"not null"`
     Price         float64
     Units         int
-    DatePublished time.Time
+    DatePublished time.Time `time_format:"2006-01-02"`
     CreatedAt     time.Time
     UpdatedAt     time.Time
 }

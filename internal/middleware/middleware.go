@@ -21,12 +21,29 @@ func AuthMiddleware() gin.HandlerFunc {
 		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 			return []byte(utils.JwtSecret), nil
 		})
-		
+
 		if err != nil || !token.Valid {
 			response.Fail(c, http.StatusUnauthorized, "UNAUTHORIZED", "invalid token")
 			c.Abort()
 			return
 		}
+
+		claims := token.Claims.(jwt.MapClaims)
+		role := claims["role"].(string)
+
+		c.Set("role", role)
+		c.Set("user_id", claims["user_id"])
+
 		c.Next()
 	}
+}
+
+func AdminOnly(c *gin.Context) {
+	role, _ := c.Get("role")
+	if role != "admin" {
+		response.Fail(c, http.StatusForbidden, "FORBIDDEN", "can't access, admin only")
+		c.Abort()
+		return
+	}
+	c.Next()
 }

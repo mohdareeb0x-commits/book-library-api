@@ -25,6 +25,12 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 		books.GET("/", bookHandler.ListBooks)
 		books.GET("/:id", bookHandler.ListBooksByID)
 		books.GET("/search", bookHandler.SearchBook)
+	}
+
+	adminRoutes := r.Group("/admin")
+	adminRoutes.Use(middleware.AuthMiddleware(), middleware.AdminOnly)
+	{
+		books := adminRoutes.Group("/books")
 		books.POST("/", bookHandler.CreateBook)
 		books.PATCH("/:id", bookHandler.UpdateBookByID)
 		books.DELETE("/:id", bookHandler.DeleteBookByID)

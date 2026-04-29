@@ -42,7 +42,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.authService.Login(register)
+	token, role, err := h.authService.Login(register)
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "LOGIN_FAILED", "failed user login")
 		return
@@ -50,5 +50,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	c.SetCookie("access_token", token, 900, "/", "", false, true)
 
-	response.OK(c, register, nil)
+	userResponse := dto.LoginResponse{
+		UserName: register.UserName,
+		Role: role,
+	}
+
+	response.OK(c, userResponse, nil)
 }

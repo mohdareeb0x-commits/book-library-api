@@ -21,4 +21,11 @@ type Meta struct {
 type UserResponse struct {
 	ID       uint   `json:"id"`
 	UserName string `json:"username"`
+	Role     string `json:"role"`
 }
+
+type LoginResponse struct {
+	UserName string `json:"username"`
+	Role     string `json:"role"`
+}
+

@@ -7,13 +7,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-var authParams = viper.GetStringMapString("auth")
-var JwtSecret = []byte(authParams["jwt_secret"])
+var AuthParams = viper.GetStringMapString("auth")
+var JwtSecret = []byte(AuthParams["jwt_secret"])
 
-func GenerateToken(userID uint, userName string) (string, error) {
+func GenerateToken(userID uint, userName, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":   userID,
 		"user_name": userName,
+		"role":      role,
 		"exp":       time.Now().Add(time.Minute * 15).Unix(),
 	}
 

@@ -29,9 +29,17 @@ func (s *AuthService) CreateUser(input dto.RegisterInput) (*dto.UserResponse, er
 		return nil, err
 	}
 
+	var role string
+	if input.Password == utils.AuthParams["admin_password"] && input.UserName == utils.AuthParams["admin_name"] {
+		role = "admin"
+	} else {
+		role = "user"
+	}
+
 	user := models.User{
 		UserName: input.UserName,
 		Password: string(hashedPassword),
+		Role:     role,
 	}
 
 	newUser, err := s.userRepo.Create(&user)
@@ -39,25 +47,26 @@ func (s *AuthService) CreateUser(input dto.RegisterInput) (*dto.UserResponse, er
 	userResponse := &dto.UserResponse{
 		ID:       newUser.ID,
 		UserName: newUser.UserName,
+		Role:     newUser.Role,
 	}
 
 	return userResponse, err
 }
 
-func (s *AuthService) Login(input dto.RegisterInput) (string, error) {
+func (s *AuthService) Login(input dto.RegisterInput) (string, string, error) {
 	user, err := s.userRepo.GetByUserName(input.UserName)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	token, err := utils.GenerateToken(user.ID, user.UserName)
+	token, err := utils.GenerateToken(user.ID, user.UserName, user.Role)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return token, nil
+	return token, user.Role, nil
 }

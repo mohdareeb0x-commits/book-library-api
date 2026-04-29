@@ -7,7 +7,7 @@ type CreateBookInput struct {
 	Author        string    `json:"author" binding:"required"`
 	Price         float64   `json:"price" binding:"gte=0"`
 	Units         int       `json:"units" binding:"gte=0"`
-	DatePublished time.Time `json:"date_published"`
+	DatePublished time.Time `json:"date_published" time_format:"2006-01-02"`
 }
 
 type UpdateBookInput struct {
@@ -15,5 +15,5 @@ type UpdateBookInput struct {
 	Author        *string    `json:"author"`
 	Price         *float64   `json:"price" binding:"omitempty,gte=0"`
 	Units         *int       `json:"units" binding:"omitempty,gte=0"`
-	DatePublished *time.Time `json:"date_published"`
+	DatePublished *time.Time `json:"date_published" time_format:"2006-01-02"`
 }
