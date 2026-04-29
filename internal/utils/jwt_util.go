@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var AuthParams = viper.GetStringMapString("auth")
+var AuthParams = viper.GetStringMapString("jwt")
 var JwtSecret = []byte(AuthParams["jwt_secret"])
 
 func GenerateToken(userID uint, userName, role string) (string, error) {

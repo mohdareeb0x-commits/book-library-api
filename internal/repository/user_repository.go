@@ -1,13 +1,17 @@
 package repository
 
 import (
-	// "fmt"
-	// "log"
-
 	"github.com/mohdareeb0x-commits/book-library-api/internal/models"
 
 	"gorm.io/gorm"
 )
+
+
+
+type UserRepositoryInterface interface {
+	GetByUserName(username string) (*models.User, error) 
+	Create(user *models.User) (*models.User, error) 
+}
 
 type UserRepository struct {
 	db *gorm.DB
