@@ -6,6 +6,7 @@ import (
 	"github.com/mohdareeb0x-commits/book-library-api/internal/dto"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/models"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/repository"
+	"github.com/mohdareeb0x-commits/book-library-api/internal/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,4 +42,22 @@ func (s *AuthService) CreateUser(input dto.RegisterInput) (*dto.UserResponse, er
 	}
 
 	return userResponse, err
+}
+
+func (s *AuthService) Login(input dto.RegisterInput) (string, error) {
+	user, err := s.userRepo.GetByUserName(input.UserName)
+	if err != nil {
+		return "", err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+		return "", err
+	}
+
+	token, err := utils.GenerateToken(user.ID, user.UserName)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

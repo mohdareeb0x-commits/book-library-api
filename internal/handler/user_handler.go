@@ -33,3 +33,22 @@ func (h *AuthHandler) CreateUser(c *gin.Context) {
 
 	response.OK(c, user, nil)
 }
+
+func (h *AuthHandler) Login(c *gin.Context) {
+	var register dto.RegisterInput
+
+	if err := c.ShouldBindJSON(&register); err != nil {
+		response.Fail(c, http.StatusBadRequest, "INVALID_USER_CREDENTIAL", "unable to login beacause of invalid credentials")
+		return
+	}
+
+	token, err := h.authService.Login(register)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "LOGIN_FAILED", "failed user login")
+		return
+	}
+
+	c.SetCookie("access_token", token, 900, "/", "", false, true)
+
+	response.OK(c, register, nil)
+}

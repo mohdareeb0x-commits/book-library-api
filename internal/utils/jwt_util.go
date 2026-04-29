@@ -1,0 +1,22 @@
+package utils
+
+import (
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
+)
+
+var authParams = viper.GetStringMapString("auth")
+var JwtSecret = []byte(authParams["jwt_secret"])
+
+func GenerateToken(userID uint, userName string) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id":   userID,
+		"user_name": userName,
+		"exp":       time.Now().Add(time.Minute * 15).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(JwtSecret)
+}
