@@ -9,19 +9,23 @@ import (
 	"gorm.io/gorm"
 )
 
+type BookrepositoryInterface interface {
+	Create(book *models.Book) (*models.Book, error)
+	List(limit, offset int) (*[]models.Book, error)
+	ListByID(id int) (*models.Book, error)
+	UpdateByID(book *models.Book, updates map[string]interface{}) error
+	DeleteByID(book *models.Book) error 
+	SearchByAuthor(author string) (*[]models.Book, error) 
+	SearchByName(name string) (*[]models.Book, error)
+	Search(name, author string, limit, offset int) (*[]models.Book, error)
+}
+
 type BookRepository struct {
 	db *gorm.DB
 }
 
 func NewBookRepository(db *gorm.DB) *BookRepository {
 	return &BookRepository{db: db}
-}
-
-func (r *BookRepository) CreateUser(user *models.User) (*models.User, error) {
-	if err := r.db.Create(user).Error; err != nil {
-		return nil, err
-	}
-	return user, nil
 }
 
 func (r *BookRepository) Create(book *models.Book) (*models.Book, error) {

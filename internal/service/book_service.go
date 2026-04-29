@@ -10,10 +10,10 @@ import (
 )
 
 type BookService struct {
-	repo *repository.BookRepository
+	repo repository.BookrepositoryInterface
 }
 
-func NewBookService(repo *repository.BookRepository) *BookService {
+func NewBookService(repo repository.BookrepositoryInterface) *BookService {
 	return &BookService{repo: repo}
 }
 
@@ -142,6 +142,9 @@ func (s *BookService) SearchBook(name, author, limit, page string) (*[]models.Bo
 		Page:   int_page,
 	}
 
+	if name == "" && author == "" {
+		return nil, nil, errors.New("No search queries")
+	}
 	if name == "" && author != "" {
 		books, err := s.repo.SearchByAuthor(author)
 		if err != nil {
@@ -155,9 +158,6 @@ func (s *BookService) SearchBook(name, author, limit, page string) (*[]models.Bo
 			return nil, nil, err
 		}
 		return books, meta, nil
-	}
-	if name == "" && author == "" {
-		return nil, nil, errors.New("No search queries")
 	}
 
 	books, err := s.repo.Search(name, author, int_limit, offset)

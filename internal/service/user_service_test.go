@@ -3,15 +3,30 @@ package service
 import (
 	"errors"
 	"testing"
-
+	"os"
+	
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+	
 	"github.com/mohdareeb0x-commits/book-library-api/internal/dto"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/models"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/repository"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
+
+func createSampleConfig() {
+	data := []byte("jwt:\n  jwt_secret: \"TEstSecREtKey\"\nadmin:\n  admin_name: \"admin\"\n  admin_password: \"admin000\"")
+
+	_ = os.MkdirAll("internal/config/", 0755)
+	_ = os.WriteFile("internal/config/config.yaml", data, 0644)
+}
+
+func deleteSampleConfig() {
+	_ = os.RemoveAll("internal")
+}
+
 func TestRegisterSuccess(t *testing.T) {
+	createSampleConfig()
 	mockRepo := &repository.MockUserRepository{
 		GetByUserNameFunc: func(username string) (*models.User, error) {
 			return nil, gorm.ErrRecordNotFound
@@ -95,4 +110,5 @@ func TestLoginFail(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error, got none")
 	}
+	deleteSampleConfig()
 }

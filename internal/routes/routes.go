@@ -2,11 +2,12 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
 	"github.com/mohdareeb0x-commits/book-library-api/internal/handler"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/middleware"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/repository"
 	"github.com/mohdareeb0x-commits/book-library-api/internal/service"
-	"gorm.io/gorm"
 )
 
 func SetupRoutes(r *gin.Engine, db *gorm.DB) {
